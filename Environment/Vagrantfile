@@ -1,0 +1,64 @@
+# Vagrantfile
+# The primary function of the Vagrantfile is to describe the type of machine required for a project, and how to configure and provision these machines.
+
+# Ruby programming language is not necessary to make modifications to the Vagrantfile, since it is mostly a simple variable assignment.
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Enforce that people use a specific version of Vagrant with a Vagrantfile
+Vagrant.require_version ">= 2.3.0"
+# Usually, host locale environment variables are passed to guests.
+ENV["LC_ALL"] = "en_US.UTF-8"
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+Vagrant.configure("2") do |config|
+  # Will add fstab entries for synced folders
+  config.vm.allow_fstab_modification = true
+  # Writing to /etc/hosts
+  config.vm.allow_hosts_modification = true
+  # The IP address to be assigned to the default NAT interface on the guest
+  config.vm.base_address = "192.168.6.6"
+  # The time in seconds that Vagrant will wait for the machine to boot and be accessible
+  config.vm.boot_timeout = 300
+  # Every Vagrant development environment requires a box.
+  config.vm.box = "centos/7"
+  # Automatic box update checking.
+  config.vm.box_check_update = true
+  # The URL that the configured box can be found at
+  config.vm.box_url = "https://app.vagrantup.com/centos/boxes/7"
+  # The communicator type to use to connect to the guest box
+  config.vm.communicator = "ssh"
+  # The time in seconds that Vagrant will wait for the machine to gracefully halt
+  config.vm.graceful_halt_timeout = 60
+  # The guest OS that will be running within this machine
+  config.vm.guest = :windows
+  # The hostname the machine should have
+  config.vm.hostname = "CentOSWorkstation"
+  # Create a forwarded port mapping which allows access to a specific port
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  # Create a private network, which allows host-only access to the machineusing a specific IP.
+  config.vm.network "private_network", ip: "192.168.6.6", virtualbox__intnet: true, name: "private_network"
+  # Create a public network, which generally matched to bridged network.
+  config.vm.network "public_network", ip: "192.168.6.7", hostname: true, name: "public_network"
+  # A message to show after vagrant up
+  config.vm.post_up_message = "This Environment was Created by Erick Quinteros"
+  # Install Basic Pakages
+  config.vm.provision "shell", path: "Scripts/basic.sh"
+    # Install Basic Pakages
+  config.vm.provision "shell", path: "Scripts/docker.sh"
+  # Provider-specific configuration so you can fine-tune
+  config.vm.provider "virtualbox" do |vb|
+  # Display the VirtualBox GUI when booting the machine
+     vb.gui = false
+     # Name in VirtualBox GUI
+     vb.name = "CentOSWorkstation"
+     # Aditions will be instaled after provision it
+     vb.check_guest_additions = false
+  # Customize the amount of memory on the VM:
+     vb.memory = "2048"
+    # CPU
+      vb.cpus = 2
+    end
+  # Share an additional folder to the guest VM.
+  config.vm.synced_folder "../Code", "/Scripts", owner: "root", group: "root"
+end
